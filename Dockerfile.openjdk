@@ -1,0 +1,26 @@
+# Author: Sean Pesce
+
+ARG JAVA_VERSION=17
+FROM openjdk:${JAVA_VERSION}-jdk-alpine
+
+# Install Maven
+RUN apk add --no-cache maven  # Alpine
+# RUN apt-get update && apt-get install -y maven  # Debian
+# RUN yum install maven  # Fedora
+# RUN dnf install -y maven  # Oracle Linux
+
+WORKDIR /
+
+# Copy project files to the container
+COPY . .
+
+# Build web app with Maven
+RUN mvn clean package
+
+# Environment variable to indicate whether the server is running on Oracle Java or OpenJDK
+ENV JAVA_TYPE=OpenJDK
+
+# TCP port that the vulnerable web app will listen on
+ENV PORT=9999
+
+CMD java -jar target/spring-cve-2024-22243-0.1.0.jar ${PORT}
